@@ -178,7 +178,6 @@ filtro de filas del paso 6):
 | Fuente | Filas enriquecidas | Cobertura |
 |---|---|---|
 | MusicBrainz | 25,180 | 25.2% |
-| AcousticBrainz | 0 * | 0.0% * |
 | tagtraum (género) | 20,037 | 20.0% |
 | musiXmatch (letras) | 24,886 | 24.9% |
 | Last.fm (tags/similares) | 94,900 | 94.9% |
