@@ -74,14 +74,6 @@ Todo de una vez (pasos 0 a 6, termina escribiendo el dataset final):
 
 ```bash
 python -m src.run_pipeline
-```
-
-Solo un rango de pasos (por ejemplo, si el paso 1 ya corrió y quieren re-hacer
-del 2 en adelante):
-
-```bash
-python -m src.run_pipeline --from 2 --to 6
-```
 
 Modo prueba rápida (limita las consultas a AcousticBrainz para verificar que
 todo el pipeline corre sin esperar horas):
