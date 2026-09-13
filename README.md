@@ -10,8 +10,7 @@ Studio Code.
 Cada fuente es un script independiente en `src/`. El script del paso N lee el
 CSV que dejó el paso N-1 en `data/processed/`, le agrega columnas nuevas
 (uniéndolas por `track_id` o `mb_recording_mbid`, según la fuente) y escribe
-su propio CSV. Así, en cualquier momento pueden abrir `data/processed/stepN_*.csv`
-y ver exactamente qué llevaba el dataset justo después de integrar esa fuente.
+su propio CSV.
 
 ```
 Paso 0  grupo_4.csv (original)
@@ -36,21 +35,9 @@ Paso 6  Limpieza final: quita columnas sin aporte (ab_*, letra_disponible,
 data/processed/dataset_final_enriquecido.csv
 ```
 
-Estas 5 fuentes fueron elegidas como las más rentables de las ~20 investigadas
-para el taller: 4 de las 5 se unen directo por `track_id` sin necesidad de
-llamar ninguna API en vivo (cero riesgo de rate-limit), y entre las cinco
-cubren características acústicas, género, letras, similitud entre canciones y
-premios — todo lo que pide el enunciado de la Etapa 1.
-
-**Nota sobre Wikidata:** inicialmente se planeó traer nacionalidad, sello
-discográfico y premios del artista vía SPARQL (`src/step5_wikidata.py`,
-`artist_mbid` → propiedad P434). El endpoint público (query.wikidata.org)
-resultó demasiado inestable para 100.000 consultas incluso con reintentos,
-backoff exponencial y lotes más chicos (errores 429/502/504 persistentes). Se
-reemplazó por el paso 5 actual (Grammy Awards, dataset estático) para no
-depender de un servicio en vivo compartido. `step5_wikidata.py` se deja en el
-repo por si más adelante lo quieren retomar con más tiempo y otra red, pero
-**no** forma parte del pipeline que corre `run_pipeline.py`.
+`src/step5_wikidata.py` es una alternativa que se descartó (endpoint SPARQL
+público muy inestable) y **no** corre como parte de `run_pipeline.py` — se
+dejó en el repo solo por si más adelante la quieren retomar.
 
 ## 1. Preparar el entorno (en VS Code)
 
@@ -74,6 +61,14 @@ Todo de una vez (pasos 0 a 6, termina escribiendo el dataset final):
 
 ```bash
 python -m src.run_pipeline
+```
+
+Solo un rango de pasos (por ejemplo, si el paso 1 ya corrió y quieren re-hacer
+del 2 en adelante):
+
+```bash
+python -m src.run_pipeline --from 2 --to 6
+```
 
 Modo prueba rápida (limita las consultas a AcousticBrainz para verificar que
 todo el pipeline corre sin esperar horas):
@@ -95,24 +90,9 @@ python -m src.step5_grammy_awards
 python -m src.step6_finalize_dataset
 ```
 
-Al final del pipeline completo imprime un resumen así (números reales de la
-corrida final del grupo):
-
-```
-RESUMEN FINAL — 75,959 canciones
-  MillionSongDataset     75,959 filas  (100.0%)
-  Last.fm                75,185 filas  ( 99.0%)
-  MusicBrainz            25,180 filas  ( 33.1%)
-  musiXmatch              24,886 filas  ( 32.8%)
-  tagtraum                20,037 filas  ( 26.4%)
-  GrammyAwards               136 filas  (  0.2%)
-OK: 75,959 filas >= 75,000 (umbral del taller cumplido).
-```
-
-(Los porcentajes de este resumen son sobre las 75.959 filas finales, ya
-filtradas en el paso 6; el % de cobertura de cada fuente reportado en el
-informe de 4 páginas está calculado sobre las 100.000 filas originales, antes
-de ese filtro — son dos cosas distintas, ver sección 4.)
+Al final del pipeline completo imprime un resumen de cobertura por fuente y
+confirma si el dataset final quedó por encima del umbral de 75,000 filas que
+exige el taller (los números concretos de esta corrida están en el informe).
 
 ## 3. Si la descarga automática falla
 
@@ -147,13 +127,12 @@ chiquitos y todo se vuelve lentísimo, es la misma causa: mejor mover la
 carpeta del proyecto fuera de la carpeta sincronizada (por ejemplo a
 `C:\dev\proyecto_etapa1`) antes de correr el pipeline completo.
 
-AcousticBrainz dejó de aceptar análisis nuevos desde 2022 (proyecto congelado);
-en la corrida final del grupo la API no devolvió resultados a tiempo (0 filas,
-0.0% de cobertura, documentado así en el informe). Su API de lectura y su dump
-histórico siguen disponibles en https://acousticbrainz.org/download — si
-quieren intentarlo de nuevo, `src/step1_musicbrainz_acousticbrainz.py` ya
-paraleliza las consultas con varios hilos (`config.AB_MAX_WORKERS`) y cachea
-en disco por MBID para que sea reanudable si se interrumpe.
+AcousticBrainz dejó de aceptar análisis nuevos desde 2022 (proyecto congelado).
+Si la API en vivo no les responde, `src/step1_musicbrainz_acousticbrainz.py`
+ya paraleliza las consultas con varios hilos (`config.AB_MAX_WORKERS`) y
+cachea en disco por MBID para que sea reanudable si se interrumpe; también
+pueden bajar el dump histórico (https://acousticbrainz.org/download) y
+adaptar `fetch_acousticbrainz_features` para leer de ahí en vez de la API.
 
 **IMPORTANTE — no abran `dataset_final_enriquecido.csv` en Excel.** Con
 configuración regional en español, Excel cambia el separador a `;`, trunca
@@ -172,49 +151,11 @@ Los identificadores usados para cada unión quedan también como columnas
 propias: `mb_recording_mbid` (MusicBrainz/AcousticBrainz, vía el paso 1),
 `artist_mbid` (ya venía en el CSV original).
 
-Cobertura por fuente, sobre la corrida completa de 100.000 filas (antes del
-filtro de filas del paso 6):
+`data/processed/dataset_final_enriquecido.csv` (salida del paso 6) es el
+dataset a entregar. El detalle de filas/columnas finales, cobertura por
+fuente y % de nulos está en el informe, no aquí.
 
-| Fuente | Filas enriquecidas | Cobertura |
-|---|---|---|
-| MusicBrainz | 25,180 | 25.2% |
-| tagtraum (género) | 20,037 | 20.0% |
-| musiXmatch (letras) | 24,886 | 24.9% |
-| Last.fm (tags/similares) | 94,900 | 94.9% |
-| Grammy Awards | 136 | 0.1% |
-
-\* AcousticBrainz no devolvió filas en esta corrida (ver nota arriba); no es
-obligatoria según el taller.
-
-## 5. Dataset final entregado
-
-`data/processed/dataset_final_enriquecido.csv` (salida del paso 6):
-**75,959 filas × 16 columnas** — `track_id, title, artist_name, release,
-year, duration, artist_mbid, fuentes, mb_recording_mbid, genero_tagtraum,
-letra_total_palabras, lastfm_tags, lastfm_similares, grammy_nominaciones,
-grammy_premios_ganados, grammy_detalle`.
-
-Se llega a esas 75,959 filas a partir de las 100,000 originales quitando las
-24,041 que no obtuvieron ningún dato de las 5 fuentes de enriquecimiento —
-sigue muy por encima del umbral de 75,000 que exige el taller. % de nulos por
-columna en el dataset final (el resto de columnas queda 100% poblada):
-
-| Columna | % nulos |
-|---|---|
-| grammy_detalle | 99.8% |
-| genero_tagtraum | 73.6% |
-| letra_total_palabras | 67.2% |
-| mb_recording_mbid | 66.9% |
-| lastfm_tags | 30.9% |
-| lastfm_similares | 21.7% |
-
-`grammy_detalle` se conserva a pesar de su altísimo % de nulos: Grammy Awards
-solo cubre 136 canciones de las 100.000, pero el taller exige poder
-identificar la fuente de cada dato, no cobertura completa por fuente.
-`grammy_nominaciones` y `grammy_premios_ganados` sí quedan 100% pobladas (0
-por defecto cuando no hay match).
-
-## 6. Pruebas
+## 5. Pruebas
 
 La lógica de parseo (archivos `.cls` de tagtraum, bag-of-words de musiXmatch,
 el mapeo MSD→MusicBrainz, la trazabilidad de fuentes) tiene pruebas
@@ -224,7 +165,7 @@ unitarias con datos de ejemplo, sin necesitar red ni los datasets completos:
 pytest -v
 ```
 
-## 7. Estructura de carpetas
+## 6. Estructura de carpetas
 
 ```
 proyecto_etapa1/
@@ -249,13 +190,3 @@ proyecto_etapa1/
 ├── requirements.txt
 └── README.md
 ```
-
-## 8. Modelo conceptual y documento del taller
-
-El modelo conceptual preliminar (grafo RDF/RDFS: clases + propiedades con
-dominio/rango + jerarquías `rdfs:subClassOf`) y el documento de máximo 4
-páginas exigido por el taller se entregan por separado (no van en este
-repo de código). El checklist completo de fuentes evaluadas quedó guardado en
-el documento del proyecto "Web Semántica" (`etapa1-fuentes-enriquecimiento.md`),
-junto con las ~15 fuentes adicionales que no se automatizaron aquí (Discogs,
-Genius, Billboard, etc.) por si quieren sumar más cobertura en la Etapa 2.
