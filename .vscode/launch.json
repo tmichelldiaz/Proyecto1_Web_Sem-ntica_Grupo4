@@ -1,0 +1,86 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Pipeline completo",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "src.run_pipeline",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Pipeline completo (modo prueba rápida)",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "src.run_pipeline",
+            "args": ["--quick-test"],
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Paso 0: base",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "src.step0_prepare_base",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Paso 1: MusicBrainz + AcousticBrainz",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "src.step1_musicbrainz_acousticbrainz",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Paso 2: tagtraum (género)",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "src.step2_tagtraum_genre",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Paso 3: musiXmatch (letras)",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "src.step3_musixmatch_lyrics",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Paso 4: Last.fm",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "src.step4_lastfm",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Paso 5: Grammy Awards",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "src.step5_grammy_awards",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Paso 6: Limpieza final",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "src.step6_finalize_dataset",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Paso 5 (descartado): Wikidata",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "src.step5_wikidata",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}

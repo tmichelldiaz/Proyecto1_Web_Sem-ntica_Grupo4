@@ -1,0 +1,19 @@
+# Archivos crudos descargados (pesan mucho, no van a git)
+data/raw/**
+!data/raw/.gitkeep
+!data/raw/grupo_4.csv
+
+# Salidas intermedias (se regeneran corriendo el pipeline)
+data/processed/**
+!data/processed/.gitkeep
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+*.egg-info/
+
+# Entorno
+.env
