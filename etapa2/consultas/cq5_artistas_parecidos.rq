@@ -1,0 +1,23 @@
+PREFIX mus: <http://example.org/musica/ontology#>
+
+# CQ5: ¿Qué artistas se parecen a Bob Dylan según las etiquetas que comparten sus canciones?
+SELECT ?parecido (COUNT(DISTINCT ?etiqueta) AS ?etiquetasEnComun)
+WHERE {
+  # etiquetas de las canciones de Bob Dylan
+  {
+    SELECT DISTINCT ?base ?etiqueta
+    WHERE {
+      ?base mus:nombre "Bob Dylan" ;
+            mus:interpreta/mus:tieneEtiqueta ?etiqueta .
+    }
+  }
+  # otros artistas con canciones que tienen esas mismas etiquetas
+  ?cancion mus:tieneEtiqueta ?etiqueta ;
+           mus:interpretadaPor ?otro .
+  ?otro a mus:Artista ;
+        mus:nombre ?parecido .
+  FILTER (?otro != ?base)
+}
+GROUP BY ?otro ?parecido
+ORDER BY DESC(?etiquetasEnComun) ?parecido ?otro
+LIMIT 10

@@ -1,0 +1,191 @@
+@prefix mus: <http://example.org/musica/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+mus:Album a rdfs:Class,
+        owl:Class ;
+    rdfs:label "álbum"@es ;
+    rdfs:comment "Disco en el que aparece una canción. Solo se conoce su nombre, por lo que se distingue por nombre y artista."@es ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:cardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty mus:lanzadoPor ] .
+
+mus:Artista a rdfs:Class,
+        owl:Class ;
+    rdfs:label "artista"@es ;
+    rdfs:comment "Persona o grupo que interpreta canciones. Se identifica por su MBID de MusicBrainz."@es ;
+    owl:hasKey ( mus:mbidArtista ) .
+
+mus:Cancion a rdfs:Class,
+        owl:Class ;
+    rdfs:label "canción"@es ;
+    rdfs:comment "Pista musical del dataset consolidado de la Etapa 1. Cada fila del dataset es una canción."@es ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:minCardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty mus:interpretadaPor ] ;
+    owl:hasKey ( mus:idTrack ) .
+
+mus:CancionConLetra a rdfs:Class,
+        owl:Class ;
+    rdfs:label "canción con letra"@es ;
+    rdfs:comment "Canción de la que se conoce el total de palabras de su letra."@es ;
+    rdfs:subClassOf mus:Cancion ;
+    owl:equivalentClass [ a owl:Class ;
+            owl:intersectionOf ( mus:Cancion [ a owl:Restriction ;
+                        owl:onProperty mus:totalPalabrasLetra ;
+                        owl:someValuesFrom xsd:integer ] ) ] .
+
+mus:CancionPremiada a rdfs:Class,
+        owl:Class ;
+    rdfs:label "canción premiada"@es ;
+    rdfs:comment "Canción que ganó al menos un premio Grammy."@es ;
+    rdfs:subClassOf mus:Cancion .
+
+mus:Etiqueta a rdfs:Class,
+        owl:Class ;
+    rdfs:label "etiqueta"@es ;
+    rdfs:comment "Etiqueta libre que los usuarios de Last.fm asignan a una canción."@es .
+
+mus:Genero a rdfs:Class,
+        owl:Class ;
+    rdfs:label "género"@es ;
+    rdfs:comment "Género musical según tagtraum (15 géneros)."@es .
+
+mus:NominacionGrammy a rdfs:Class,
+        owl:Class ;
+    rdfs:label "nominación Grammy"@es ;
+    rdfs:comment "Nominación de una canción a un premio Grammy. Relaciona canción, categoría, año y resultado."@es ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:cardinality "1"^^xsd:nonNegativeInteger ;
+            owl:onProperty mus:categoria ] .
+
+<http://example.org/musica/ontology> a owl:Ontology ;
+    rdfs:label "Ontología musical"@es ;
+    rdfs:comment "Modelo del dominio musical construido a partir del dataset consolidado de la Etapa 1."@es .
+
+mus:anio a rdf:Property,
+        owl:DatatypeProperty ;
+    rdfs:label "año"@es ;
+    rdfs:comment "Año de lanzamiento. Si se desconoce, no se declara."@es ;
+    rdfs:domain mus:Cancion ;
+    rdfs:range xsd:gYear .
+
+mus:anioNominacion a rdf:Property,
+        owl:DatatypeProperty ;
+    rdfs:label "año de la nominación"@es ;
+    rdfs:comment "Año de la ceremonia de los Grammy."@es ;
+    rdfs:domain mus:NominacionGrammy ;
+    rdfs:range xsd:gYear .
+
+mus:apareceEn a rdf:Property,
+        owl:ObjectProperty ;
+    rdfs:label "aparece en"@es ;
+    rdfs:comment "Álbum en el que aparece la canción."@es ;
+    rdfs:domain mus:Cancion ;
+    rdfs:range mus:Album ;
+    owl:inverseOf mus:contiene .
+
+mus:ganada a rdf:Property,
+        owl:DatatypeProperty ;
+    rdfs:label "ganada"@es ;
+    rdfs:comment "Verdadero si la nominación resultó en premio."@es ;
+    rdfs:domain mus:NominacionGrammy ;
+    rdfs:range xsd:boolean .
+
+mus:nombre a rdf:Property,
+        owl:DatatypeProperty ;
+    rdfs:label "nombre"@es ;
+    rdfs:comment "Nombre de un artista, álbum, género o etiqueta."@es ;
+    rdfs:range xsd:string .
+
+mus:tieneEtiqueta a rdf:Property,
+        owl:ObjectProperty ;
+    rdfs:label "tiene etiqueta"@es ;
+    rdfs:comment "Etiqueta de Last.fm asignada a la canción."@es ;
+    rdfs:domain mus:Cancion ;
+    rdfs:range mus:Etiqueta .
+
+mus:tieneGenero a rdf:Property,
+        owl:FunctionalProperty,
+        owl:ObjectProperty ;
+    rdfs:label "tiene género"@es ;
+    rdfs:comment "Género asignado a la canción."@es ;
+    rdfs:domain mus:Cancion ;
+    rdfs:range mus:Genero .
+
+mus:tieneNominacion a rdf:Property,
+        owl:ObjectProperty ;
+    rdfs:label "tiene nominación"@es ;
+    rdfs:comment "Nominación a un Grammy que recibió la canción."@es ;
+    rdfs:domain mus:Cancion ;
+    rdfs:range mus:NominacionGrammy .
+
+mus:titulo a rdf:Property,
+        owl:DatatypeProperty ;
+    rdfs:label "título"@es ;
+    rdfs:comment "Título de la canción."@es ;
+    rdfs:domain mus:Cancion ;
+    rdfs:range xsd:string .
+
+mus:categoria a rdf:Property,
+        owl:DatatypeProperty ;
+    rdfs:label "categoría"@es ;
+    rdfs:comment "Categoría del premio Grammy."@es ;
+    rdfs:domain mus:NominacionGrammy ;
+    rdfs:range xsd:string .
+
+mus:contiene a rdf:Property,
+        owl:ObjectProperty ;
+    rdfs:label "contiene"@es ;
+    rdfs:comment "Canción que contiene el álbum."@es ;
+    rdfs:domain mus:Album ;
+    rdfs:range mus:Cancion .
+
+mus:idTrack a rdf:Property,
+        owl:DatatypeProperty ;
+    rdfs:label "id de track"@es ;
+    rdfs:comment "Identificador de la canción en el Million Song Dataset."@es ;
+    rdfs:domain mus:Cancion ;
+    rdfs:range xsd:string .
+
+mus:interpreta a rdf:Property,
+        owl:ObjectProperty ;
+    rdfs:label "interpreta"@es ;
+    rdfs:comment "Canción que interpreta el artista."@es ;
+    rdfs:domain mus:Artista ;
+    rdfs:range mus:Cancion .
+
+mus:interpretadaPor a rdf:Property,
+        owl:ObjectProperty ;
+    rdfs:label "interpretada por"@es ;
+    rdfs:comment "Artista que interpreta la canción."@es ;
+    rdfs:domain mus:Cancion ;
+    rdfs:range mus:Artista ;
+    owl:inverseOf mus:interpreta .
+
+mus:lanzadoPor a rdf:Property,
+        owl:ObjectProperty ;
+    rdfs:label "lanzado por"@es ;
+    rdfs:comment "Artista al que pertenece el álbum."@es ;
+    rdfs:domain mus:Album ;
+    rdfs:range mus:Artista .
+
+mus:mbidArtista a rdf:Property,
+        owl:DatatypeProperty ;
+    rdfs:label "MBID del artista"@es ;
+    rdfs:comment "Identificador del artista en MusicBrainz."@es ;
+    rdfs:domain mus:Artista ;
+    rdfs:range xsd:string .
+
+mus:totalPalabrasLetra a rdf:Property,
+        owl:DatatypeProperty ;
+    rdfs:label "total de palabras de la letra"@es ;
+    rdfs:comment "Número de palabras de la letra de la canción."@es ;
+    rdfs:domain mus:Cancion ;
+    rdfs:range xsd:integer .
+
+[] a owl:AllDisjointClasses ;
+    owl:members ( mus:Cancion mus:Artista mus:Album mus:Genero mus:Etiqueta mus:NominacionGrammy ) .
+

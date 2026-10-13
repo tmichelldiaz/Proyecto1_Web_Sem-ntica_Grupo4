@@ -1,0 +1,15 @@
+PREFIX mus: <http://example.org/musica/ontology#>
+
+# CQ4: ¿Qué canciones ganaron un Grammy, en qué año y en qué categoría? (primeras 20)
+SELECT ?titulo ?artista ?anio ?categoria
+WHERE {
+  ?cancion mus:tieneNominacion ?n ;
+           mus:titulo ?titulo ;
+           mus:interpretadaPor ?a .
+  ?a mus:nombre ?artista .
+  ?n mus:ganada true ;
+     mus:anioNominacion ?anio ;
+     mus:categoria ?categoria .
+}
+ORDER BY ?anio ?categoria ?titulo ?artista ?cancion
+LIMIT 20

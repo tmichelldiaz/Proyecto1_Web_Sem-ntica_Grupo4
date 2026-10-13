@@ -1,0 +1,15 @@
+PREFIX mus: <http://example.org/musica/ontology#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+# CQ3: ¿Cuántas canciones hay por década y por género?
+# El año es xsd:gYear: se convierte a entero antes de operar, porque comparar
+# gYear directamente puede descartar filas sin avisar.
+SELECT ?decada ?genero (COUNT(?cancion) AS ?canciones)
+WHERE {
+  ?cancion mus:anio ?anio ;
+           mus:tieneGenero ?g .
+  ?g mus:nombre ?genero .
+  BIND(xsd:integer(FLOOR(xsd:integer(STR(?anio)) / 10)) * 10 AS ?decada)
+}
+GROUP BY ?decada ?genero
+ORDER BY ?decada ?genero

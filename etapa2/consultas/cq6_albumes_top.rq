@@ -1,0 +1,14 @@
+PREFIX mus: <http://example.org/musica/ontology#>
+
+# CQ6: ¿Qué álbumes tienen más canciones en el dataset y de qué artista son?
+SELECT ?album ?artista (COUNT(?cancion) AS ?canciones)
+WHERE {
+  ?al a mus:Album ;
+      mus:nombre ?album ;
+      mus:lanzadoPor ?a ;
+      mus:contiene ?cancion .
+  ?a mus:nombre ?artista .
+}
+GROUP BY ?al ?album ?artista
+ORDER BY DESC(?canciones) ?album ?artista ?al
+LIMIT 10

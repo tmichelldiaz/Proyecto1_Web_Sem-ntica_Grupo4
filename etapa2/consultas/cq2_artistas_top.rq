@@ -1,0 +1,13 @@
+PREFIX mus: <http://example.org/musica/ontology#>
+
+# CQ2: ¿Cuáles son los 10 artistas con más canciones y en cuántos géneros distintos aparecen?
+SELECT ?artista (COUNT(DISTINCT ?cancion) AS ?canciones) (COUNT(DISTINCT ?genero) AS ?generos)
+WHERE {
+  ?a a mus:Artista ;
+     mus:nombre ?artista ;
+     mus:interpreta ?cancion .
+  OPTIONAL { ?cancion mus:tieneGenero ?genero }
+}
+GROUP BY ?a ?artista
+ORDER BY DESC(?canciones) ?artista ?a
+LIMIT 10

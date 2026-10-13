@@ -1,0 +1,13 @@
+PREFIX mus:    <http://example.org/musica/ontology#>
+PREFIX genero: <http://example.org/musica/resource/genero/>
+
+# CQ8: ¿Cuáles son las 5 etiquetas más usadas en las canciones de Metal?
+SELECT ?etiqueta (COUNT(DISTINCT ?cancion) AS ?canciones)
+WHERE {
+  ?cancion mus:tieneGenero genero:metal ;
+           mus:tieneEtiqueta ?e .
+  ?e mus:nombre ?etiqueta .
+}
+GROUP BY ?e ?etiqueta
+ORDER BY DESC(?canciones) ?etiqueta ?e
+LIMIT 5

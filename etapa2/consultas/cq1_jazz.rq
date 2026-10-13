@@ -1,0 +1,14 @@
+PREFIX mus:    <http://example.org/musica/ontology#>
+PREFIX genero: <http://example.org/musica/resource/genero/>
+
+# CQ1: ¿Qué canciones de Jazz hay y quiénes son sus artistas? (primeras 20)
+SELECT ?titulo ?artista
+WHERE {
+  ?cancion a mus:Cancion ;
+           mus:tieneGenero genero:jazz ;
+           mus:titulo ?titulo ;
+           mus:interpretadaPor ?a .
+  ?a mus:nombre ?artista .
+}
+ORDER BY ?artista ?titulo ?cancion
+LIMIT 20

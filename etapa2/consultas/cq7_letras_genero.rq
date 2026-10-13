@@ -1,0 +1,11 @@
+PREFIX mus: <http://example.org/musica/ontology#>
+
+# CQ7: ¿Qué género tiene el mayor promedio de palabras en sus letras?
+SELECT ?genero (COUNT(?cancion) AS ?canciones) (ROUND(AVG(?palabras)) AS ?promedioPalabras)
+WHERE {
+  ?cancion mus:tieneGenero ?g ;
+           mus:totalPalabrasLetra ?palabras .
+  ?g mus:nombre ?genero .
+}
+GROUP BY ?genero
+ORDER BY DESC(?promedioPalabras) ?genero
